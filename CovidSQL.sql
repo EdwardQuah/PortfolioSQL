@@ -139,3 +139,12 @@ SELECT *, (VacRolling/POPULATION)*100 as PercentVac
 FROM #NewPercentPopVac
 WHERE location like 'Brunei'
 ORDER BY 2,3
+
+--Creating View to store data for future visualization in Tableau
+Create View PercentPopulationVaccinated as
+SELECT dea.continent, dea.location,dea.date,dea.population,vac.new_vaccinations,SUM(CONVERT(bigint,vac.new_vaccinations)) OVER (Partition by dea.location ORDER BY dea.location, dea.date) as RollingPeopleVaccinated
+FROM dbo.CovidDeaths dea
+JOIN dbo.CovidVacs vac
+	ON dea.location = vac.location
+	and dea.date = vac.date
+WHERE dea.continent IS NOT NULL
